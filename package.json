@@ -1,0 +1,45 @@
+{
+  "name": "dnsstamp",
+  "version": "1.0.0",
+  "description": "DNS Stamp de/encoder",
+  "main": "dist/stamp.js",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "test": "nyc mocha --require ts-node/register --require source-map-support/register test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rs/node-dnsstamp.git"
+  },
+  "keywords": [
+    "dns",
+    "dnscrypt",
+    "doh",
+    "sdns",
+    "stamp"
+  ],
+  "author": "Olivier Poitrey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rs/node-dnsstamp/issues"
+  },
+  "homepage": "https://github.com/rs/node-dnsstamp#readme",
+  "dependencies": {
+    "@types/node": "^12.0.1",
+    "@types/urlsafe-base64": "^1.0.28",
+    "urlsafe-base64": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.6",
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4",
+    "nyc": "^14.1.1",
+    "source-map-support": "^0.5.12",
+    "ts-loader": "^6.0.0",
+    "ts-node": "^8.1.0",
+    "typescript": "^3.4.5",
+    "webpack": "^4.31.0",
+    "webpack-cli": "^3.3.2"
+  }
+}

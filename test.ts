@@ -1,0 +1,116 @@
+'use strict';
+
+import * as chai from 'chai';
+import { DNSStamp } from './stamp';
+
+const expect = chai.expect;
+
+interface test {
+    name: string;
+    sdns: string;
+    obj: DNSStamp.Stamp;
+}
+
+const tests: { [s: string]: Array<test> } = {
+    'DNSCryptStamp': [
+        {
+            name: 'default values',
+            sdns: 'sdns://AQcAAAAAAAAAAAAA',
+            obj: new DNSStamp.DNSCrypt('', {}),
+        },
+        {
+            name: 'with addr',
+            sdns: 'sdns://AQcAAAAAAAAAA2ZvbwAA',
+            obj: new DNSStamp.DNSCrypt('foo', {}),
+        },
+        {
+            name: 'with pk',
+            sdns: 'sdns://AQcAAAAAAAAAAAPwC6QA',
+            obj: new DNSStamp.DNSCrypt('', {
+                pk: 'f00ba4',
+            }),
+        },
+        {
+            name: 'with provider',
+            sdns: 'sdns://AQcAAAAAAAAAAAADZm9v',
+            obj: new DNSStamp.DNSCrypt('', {
+                providerName: 'foo',
+            }),
+        },
+        {
+            name: 'all props false',
+            sdns: 'sdns://AQAAAAAAAAAAAAAA',
+            obj: new DNSStamp.DNSCrypt('', {
+                props: new DNSStamp.Properties({
+                    nofilter: false,
+                    nolog: false,
+                    dnssec: false,
+                }),
+            }),
+        },
+    ],
+    'DOHStamp': [
+        {
+            name: 'default values',
+            sdns: 'sdns://AgcAAAAAAAAAAAAAAA',
+            obj: new DNSStamp.DOH('', {}),
+        },
+        {
+            name: 'with addr',
+            sdns: 'sdns://AgcAAAAAAAAAA2ZvbwAAAA',
+            obj: new DNSStamp.DOH('foo', {}),
+        },
+        {
+            name: 'with hostname',
+            sdns: 'sdns://AgcAAAAAAAAAAAADZm9vAA',
+            obj: new DNSStamp.DOH('', {
+                hostName: 'foo',
+            }),
+        },
+        {
+            name: 'with hash',
+            sdns: 'sdns://AgcAAAAAAAAAAAPwC6QAAA',
+            obj: new DNSStamp.DOH('', {
+                hash: 'f00ba4',
+            }),
+        },
+        {
+            name: 'with path',
+            sdns: 'sdns://AgcAAAAAAAAAAAAABC9mb28',
+            obj: new DNSStamp.DOH('', {
+                path: '/foo',
+            }),
+        },
+        {
+            name: 'all props false',
+            sdns: 'sdns://AgAAAAAAAAAAAAAAAA',
+            obj: new DNSStamp.DOH('', {
+                props: new DNSStamp.Properties({
+                    nofilter: false,
+                    nolog: false,
+                    dnssec: false,
+                }),
+            }),
+        },
+    ]
+};
+
+for (let cls in tests) {
+    const testPairs = tests[cls];
+    describe(cls, () => {
+        describe('toString()', () => {
+            testPairs.forEach(t => {
+                it(t.name, () => {
+                    expect(t.obj.toString()).to.be.equal(t.sdns);
+                });
+            });
+        });
+        describe('parse()', () => {
+            testPairs.forEach(t => {
+                it(t.name, () => {
+                    expect(DNSStamp.parse(t.sdns)).to.be.deep.equal(t.obj);
+                });
+            });
+        });
+    });
+}

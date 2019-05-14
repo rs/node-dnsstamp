@@ -2,6 +2,13 @@
 
 import * as URLSafeBase64 from "urlsafe-base64";
 
+enum Protocol {
+    DNSCrypt = 0x01,
+    DOH,
+    DOT,
+    Plain,
+}
+
 export namespace DNSStamp {
     export class Properties {
         dnssec = true;
@@ -28,6 +35,12 @@ export namespace DNSStamp {
         // providerName is the DNSCrypt provider name.
         providerName = "";
 
+        // Creates a new DNSCrypt stamp.
+        //
+        // @param addr is the IP address, as a string, with a port number if the
+        // server is not accessible over the standard port for the protocol
+        // (443). IPv6 strings must be included in square brackets:
+        // [fe80::6d6d:f72c:3ad:60b8]. Scopes are permitted.
         constructor(readonly addr: string, init?: Partial<DNSCrypt>) {
             Object.assign(this, init);
         }
@@ -36,7 +49,7 @@ export namespace DNSStamp {
             let props = this.props.toNumber();
             let addr = this.addr.split("").map(c => c.charCodeAt(0));
 
-            let v = [0x01, props, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+            let v = [Protocol.DNSCrypt, props, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
             v.push(addr.length, ...addr);
             let pk = Buffer.from(this.pk.replace(/[: \t]/g, ""), "hex");
             v.push(pk.length, ...pk);
@@ -63,6 +76,12 @@ export namespace DNSStamp {
         // path is the absolute URI path, such as /.well-known/dns-query.
         path = "";
 
+        // Creates a new DNS over HTTPS stamp.
+        //
+        // @param addr is the IP address of the server.It can be an empty
+        // string, or just a port number, represented with a preceding colon
+        // (:443). In that case, the host name will be resolved to an IP address
+        // using another resolver.
         constructor(readonly addr: string, init?: Partial<DOH>) {
             Object.assign(this, init);
         }
@@ -70,8 +89,8 @@ export namespace DNSStamp {
         public toString(): string {
             let props = this.props.toNumber();
             let addr = this.addr.split("").map(c => c.charCodeAt(0));
-  
-            let v = [0x02, props, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+
+            let v = [Protocol.DOH, props, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
             v.push(addr.length, ...addr);
             let hash = Buffer.from(this.hash.replace(/[: \t]/g, ""), "hex");
             v.push(hash.length, ...hash);
@@ -79,6 +98,67 @@ export namespace DNSStamp {
             v.push(hostName.length, ...hostName);
             let path = this.path.split("").map(c => c.charCodeAt(0));
             v.push(path.length, ...path);
+            return `sdns://${URLSafeBase64.encode(Buffer.from(v))}`;
+        }
+    }
+
+    export class DOT {
+        props = new Properties();
+
+        // hostname hostname is the server host name which will also be used as
+        // a SNI name.
+        hostName = "";
+
+        // hashi is the SHA256 digest of one of the TBS certificate found in the
+        // validation chain, typically the certificate used to sign the resolver’s
+        // certificate. Multiple hashes can be provided for seamless rotations.
+        hash = "";
+
+        // Creates a new DNS over TLS stamp.
+        //
+        // @param addr is the IP address of the server. It can be an empty
+        // string, or just a port number. In that case, the host name will be
+        // resolved to an IP address using another resolver. IPv6 strings must
+        // be included in square brackets: [fe80::6d6d:f72c:3ad:60b8]. Scopes
+        // are permitted.
+        constructor(readonly addr: string, init?: Partial<DOH>) {
+            Object.assign(this, init);
+        }
+
+        public toString(): string {
+            let props = this.props.toNumber();
+            let addr = this.addr.split("").map(c => c.charCodeAt(0));
+
+            let v = [Protocol.DOT, props, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+            v.push(addr.length, ...addr);
+            let hash = Buffer.from(this.hash.replace(/[: \t]/g, ""), "hex");
+            v.push(hash.length, ...hash);
+            let hostName = this.hostName.split("").map(c => c.charCodeAt(0));
+            v.push(hostName.length, ...hostName);
+            return `sdns://${URLSafeBase64.encode(Buffer.from(v))}`;
+        }
+    }
+
+    export class Plain {
+        props = new Properties();
+
+        // Creates a new Plain DNS stamp.
+        //
+        // @param addr is the IP address of the server. It can be an empty
+        // string, or just a port number. In that case, the host name will be
+        // resolved to an IP address using another resolver. IPv6 strings must
+        // be included in square brackets: [fe80::6d6d:f72c:3ad:60b8]. Scopes
+        // are permitted.
+        constructor(readonly addr: string, init?: Partial<DOH>) {
+            Object.assign(this, init);
+        }
+
+        public toString(): string {
+            let props = this.props.toNumber();
+            let addr = this.addr.split("").map(c => c.charCodeAt(0));
+
+            let v = [Protocol.Plain, props, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+            v.push(addr.length, ...addr);
             return `sdns://${URLSafeBase64.encode(Buffer.from(v))}`;
         }
     }
@@ -97,26 +177,40 @@ export namespace DNSStamp {
         let addrLen = bin[i++];
         const addr = bin.slice(i, i + addrLen).toString("utf-8");
         i += addrLen;
-        if (bin[0] === 0x01) {
-            // DNSCrypt
-            let pkLen = bin[i++];
-            const pk = bin.slice(i, i + pkLen).toString("hex");
-            i += pkLen;
-            let providerNameLen = bin[i++];
-            const providerName = bin.slice(i, i + providerNameLen).toString("utf-8");
-            return new DNSCrypt(addr, { props, pk, providerName });
-        } else if (bin[0] === 0x02) {
-            // DoH
-            const hashLen = bin[i++];
-            const hash = bin.slice(i, i + hashLen).toString("hex");
-            i += hashLen;
-            const hostNameLen = bin[i++];
-            const hostName = bin.slice(i, i + hostNameLen).toString("utf-8");
-            i += hostNameLen;
-            const pathLen = bin[i++];
-            const path = bin.slice(i, i + pathLen).toString("utf-8");
-            return new DOH(addr, { props, hash, hostName, path });
+        switch (bin[0]) {
+            case Protocol.DNSCrypt: {
+                let pkLen = bin[i++];
+                const pk = bin.slice(i, i + pkLen).toString("hex");
+                i += pkLen;
+                let providerNameLen = bin[i++];
+                const providerName = bin.slice(i, i + providerNameLen).toString("utf-8");
+                return new DNSCrypt(addr, { props, pk, providerName });
+            }
+            case Protocol.DOH: {
+                const hashLen = bin[i++];
+                const hash = bin.slice(i, i + hashLen).toString("hex");
+                i += hashLen;
+                const hostNameLen = bin[i++];
+                const hostName = bin.slice(i, i + hostNameLen).toString("utf-8");
+                i += hostNameLen;
+                const pathLen = bin[i++];
+                const path = bin.slice(i, i + pathLen).toString("utf-8");
+                return new DOH(addr, { props, hash, hostName, path });
+            }
+            case Protocol.DOT: {
+                const hashLen = bin[i++];
+                const hash = bin.slice(i, i + hashLen).toString("hex");
+                i += hashLen;
+                const hostNameLen = bin[i++];
+                const hostName = bin.slice(i, i + hostNameLen).toString("utf-8");
+                i += hostNameLen;
+                return new DOT(addr, { props, hash, hostName });
+            }
+            case Protocol.Plain: {
+                return new Plain(addr, { props });
+            }
         }
+
         throw new Error("unsupported protocol: " + bin[0]);
     }
 }

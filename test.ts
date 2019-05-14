@@ -12,7 +12,7 @@ interface test {
 }
 
 const tests: { [s: string]: Array<test> } = {
-    'DNSCryptStamp': [
+    'DNSCrypt': [
         {
             name: 'default values',
             sdns: 'sdns://AQcAAAAAAAAAAAAA',
@@ -49,7 +49,7 @@ const tests: { [s: string]: Array<test> } = {
             }),
         },
     ],
-    'DOHStamp': [
+    'DOH': [
         {
             name: 'default values',
             sdns: 'sdns://AgcAAAAAAAAAAAAAAA',
@@ -85,6 +85,66 @@ const tests: { [s: string]: Array<test> } = {
             name: 'all props false',
             sdns: 'sdns://AgAAAAAAAAAAAAAAAA',
             obj: new DNSStamp.DOH('', {
+                props: new DNSStamp.Properties({
+                    nofilter: false,
+                    nolog: false,
+                    dnssec: false,
+                }),
+            }),
+        },
+    ],
+    'DOT': [
+        {
+            name: 'default values',
+            sdns: 'sdns://AwcAAAAAAAAAAAAA',
+            obj: new DNSStamp.DOT('', {}),
+        },
+        {
+            name: 'with addr',
+            sdns: 'sdns://AwcAAAAAAAAAA2ZvbwAA',
+            obj: new DNSStamp.DOT('foo', {}),
+        },
+        {
+            name: 'with hostname',
+            sdns: 'sdns://AwcAAAAAAAAAAAADZm9v',
+            obj: new DNSStamp.DOT('', {
+                hostName: 'foo',
+            }),
+        },
+        {
+            name: 'with hash',
+            sdns: 'sdns://AwcAAAAAAAAAAAPwC6QA',
+            obj: new DNSStamp.DOT('', {
+                hash: 'f00ba4',
+            }),
+        },
+        {
+            name: 'all props false',
+            sdns: 'sdns://AwAAAAAAAAAAAAAA',
+            obj: new DNSStamp.DOT('', {
+                props: new DNSStamp.Properties({
+                    nofilter: false,
+                    nolog: false,
+                    dnssec: false,
+                }),
+            }),
+        },
+    ],
+    'Plain': [
+        {
+            name: 'default values',
+            sdns: 'sdns://BAcAAAAAAAAAAA',
+            obj: new DNSStamp.Plain('', {}),
+        },
+        {
+            name: 'with addr',
+            sdns: 'sdns://BAcAAAAAAAAAA2Zvbw',
+            obj: new DNSStamp.Plain('foo', {}),
+        },
+        {
+            name: 'all props false',
+            sdns: 'sdns://BAAAAAAAAAAAAA',
+            obj: new DNSStamp.Plain('', {
                 props: new DNSStamp.Properties({
                     nofilter: false,
                     nolog: false,

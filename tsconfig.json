@@ -1,9 +1,10 @@
 {
     "compilerOptions": {
-        "target": "es6",
+        "target": "esnext",
         "lib": ["es6"],
+        "module": "commonjs",
         "sourceMap": true,
-        "allowJs": true,
+        "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "noEmitOnError": true,
         "noImplicitAny": true,

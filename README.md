@@ -28,6 +28,13 @@ let stamp = new DNSStamp.DNSCrypt(addr, {
 let sdns = stamp.toString();
 ```
 
+Supported stamps:
+
+* `DNSStamp.DNSCrypt`: constructor(`addr`, {`props`, `pk`, `providerName`})
+* `DNSStamp.DOH`: constructor(`addr`, {`props`, `hostName`, `hash`, `path`})
+* `DNSStamp.DOT`: constructor(`addr`, {`props`, `hostName`, `hash`})
+* `DNSStamp.Plain`: constructor(`addr`, {`props`})
+
 ## Licenses
 
 All source code is licensed under the [MIT License](https://raw.github.com/rs/node-dnsstamp/master/LICENSE).

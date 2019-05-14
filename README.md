@@ -4,7 +4,7 @@ This node module provides a simple API to parse and generate [DNS Stamp](https:/
 
 ## Installation
 
-    npm install node-dnsstamp
+    npm install dnsstamp
 
 ## Usage
 

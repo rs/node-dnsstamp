@@ -4,7 +4,7 @@
   "description": "DNS Stamp de/encoder",
   "main": "dist/stamp.js",
   "scripts": {
-    "build": "webpack --config webpack.config.js",
+    "prepare": "webpack --config webpack.config.js",
     "test": "nyc mocha --require ts-node/register --require source-map-support/register test.ts"
   },
   "repository": {

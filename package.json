@@ -1,6 +1,6 @@
 {
   "name": "dnsstamp",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "DNS Stamp de/encoder",
   "main": "dist/stamp.js",
   "scripts": {

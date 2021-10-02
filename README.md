@@ -1,3 +1,11 @@
+## @leichtgewicht/dnsstamp
+
+`@leichtgewicht/dnsstamp` is a fork of [dnsstamp](https://github.com/rs/node-dnsstamp) with the PR
+
+- https://github.com/rs/node-dnsstamp/pull/1
+
+merged in.
+
 # DNS Stamp
 
 This node module provides a simple API to parse and generate [DNS Stamp](https://dnscrypt.info/stamps-specifications/) as defined by [Frank Denis](https://twitter.com/jedisct1).

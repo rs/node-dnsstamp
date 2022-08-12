@@ -152,6 +152,86 @@ const tests: { [s: string]: Array<test> } = {
                 }),
             }),
         },
+    ],
+    'ODOH': [
+        {
+            name: 'default values',
+            sdns: 'sdns://BQcAAAAAAAAAAAA',
+            obj: new DNSStamp.ODOH({
+                hostName: '',
+                path: ''
+            })
+        },
+        {
+            name: 'with hostName',
+            sdns: 'sdns://BQcAAAAAAAAAA2ZvbwA',
+            obj: new DNSStamp.ODOH({
+                hostName: 'foo'
+            })
+        },
+        {
+            name: 'with path',
+            sdns: 'sdns://BQcAAAAAAAAAAAQvZm9v',
+            obj: new DNSStamp.ODOH({
+                path: '/foo'
+            })
+        }
+    ],
+    'AnonymizedRelay': [
+        {
+            name: 'empty',
+            sdns: 'sdns://gQA',
+            obj: new DNSStamp.AnonymizedRelay('')
+        },
+        {
+            name: 'with addr',
+            sdns: 'sdns://gQNmb28',
+            obj: new DNSStamp.AnonymizedRelay('foo')
+        }
+    ],
+    'ODOHRelay': [
+        {
+            name: 'default values',
+            sdns: 'sdns://hQcAAAAAAAAAAAAAAA',
+            obj: new DNSStamp.ODOHRelay('', {}),
+        },
+        {
+            name: 'with addr',
+            sdns: 'sdns://hQcAAAAAAAAAA2ZvbwAAAA',
+            obj: new DNSStamp.ODOHRelay('foo', {}),
+        },
+        {
+            name: 'with hostname',
+            sdns: 'sdns://hQcAAAAAAAAAAAADZm9vAA',
+            obj: new DNSStamp.ODOHRelay('', {
+                hostName: 'foo',
+            }),
+        },
+        {
+            name: 'with hash',
+            sdns: 'sdns://hQcAAAAAAAAAAAPwC6QAAA',
+            obj: new DNSStamp.ODOHRelay('', {
+                hash: 'f00ba4',
+            }),
+        },
+        {
+            name: 'with path',
+            sdns: 'sdns://hQcAAAAAAAAAAAAABC9mb28',
+            obj: new DNSStamp.ODOHRelay('', {
+                path: '/foo',
+            }),
+        },
+        {
+            name: 'all props false',
+            sdns: 'sdns://hQAAAAAAAAAAAAAAAA',
+            obj: new DNSStamp.ODOHRelay('', {
+                props: new DNSStamp.Properties({
+                    nofilter: false,
+                    nolog: false,
+                    dnssec: false,
+                }),
+            }),
+        },
     ]
 };
 
